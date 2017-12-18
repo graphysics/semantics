@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>Semantics Parser Demostration</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="Access-Control-Allow-Origin" content="http://localhost:10086/;http://nlp.fundsea.cn:10086/">
+	<link rel="stylesheet" type="text/css" href="css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="css/themes/default/tree.css">
+    <link rel="stylesheet" type="text/css" href="css/themes/default/panel.css">
+	<link rel="stylesheet" type="text/css" href="css/themes/icon.css">
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="js/easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        function makeTreeNode(data) {
+            var node = new Object();
+            node.id = 1;
+            node.text = data.Label;
+            if (data.Children != undefined) {
+                node.children = new Array();
+                for (var i = 0; i < data.Children.length; i++) {
+                    var c = data.Children[i];
+                    var child = makeTreeNode(c);
+                    node.children.push(child);
+                }
+            }
+            return node;
+        }
+        function showparseresult(data) {
+            var root = new Array();
+            var node = makeTreeNode(data.Result);
+            root.push(node);
+            $("#tree2").tree({
+                data: root
+            });
+        }
+        function doparse() {
+            $("#errormessage").innerHtml = "";
+            var txtbox = $("#words")[0];
+            var postdata = $('#form1').serialize();
+            var serviceurl = $("#serviceurl")[0].value + 'Parse';
+            $.ajax({
+                type: 'post',
+                url: serviceurl,
+                data: postdata,
+                cache: false,
+                success: function (data) {
+                    showparseresult(data);
+                    var s = JSON.stringify(data);
+                    var divjson = $("#parseresult")[0];
+                    divjson.innerHTML = s;
+                },
+                error: function (e) {
+                    var div = $("#errormessage")[0];
+                    if (e.responseText == null)
+                        div.innerHTML = e.statusText;
+                    else {
+                        var response = e.responseText;
+                        var failure = eval("(" + response + ")");
+                        div.innerText = failure.Type + ':' + failure.Message;
+                    }
+                }
+            });
+        }
+
+        function call(method, parameter, recall) {
+            var serviceurl = $("#serviceurl")[0].value + method;
+            $.ajax({
+                type: 'post',
+                url: serviceurl,
+                data: parameter,
+                cache: false,
+                success:
+                function (data) {
+                    recall(data);
+                },
+                error:
+                function (e) {
+                    var div = $("#errormessage")[0];
+                    if (e.responseText == null)
+                        div.innerHTML = e.statusText;
+                    else {
+                        var response = e.responseText;
+                        var failure = eval("(" + response + ")");
+                        div.innerText = failure.Type + ':' + failure.Message;
+                    }
+                }
+            });
+        }
+
+        function seturl(service) {
+            $("#serviceurl")[0].value = 'http://' + service + ':10085/semanticapi/';
+        }
+    </script>
+    <table width="800px" align="center">
+        <tr>
+            <td align="right">
+                <table>
+                    <tr>
+                        <td><div id="loggedclient"></div></td>
+                        <td><span onclick="Open_Dialog()" style="background-color:lightgray;font-weight:bold;cursor:pointer;">登录</span></td>
+                    </tr>
+                </table>                
+            </td>
+        </tr>
+        <tr>
+            <td align="center">
+                <h2>Semantics API Demo: javascript/ajax verion</h2>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ServiceUrl:<input id="serviceurl" type="text" value="http://nlp.fundsea.cn:10085/semanticapi/" style="width:300px;" />
+                <form action="" method="get">
+                <label><input id="RadioServer" name="service" type="radio" value="server" onclick="seturl('nlp.fundsea.cn')"/>server</label>
+                <label><input id="RadioLocal" name="service" type="radio" value="local" onclick="seturl('localhost')"/>local</label>
+                    </form>
+             </td>
+        </tr>
+        <tr>
+            <td>
+                <form id="form1" method="post">
+                    <input id="__token__" name="__token__" type="hidden" />
+                    输入语句：<input id="words" name="words" type="text" value="中国的首都" style="width:300px;" />
+                    <input id="btnParse" type="button" value="Parse" onclick="doparse()"  style="cursor:pointer;"/>
+                </form>
+            </td>
+        <tr>
+        <tr>
+            <td>
+                <table>
+                    <tr style="background-color:lightblue;font-weight:bold;">
+                        <td width="300px">句法树</td>
+                        <td width="500px">JSON数据</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <ul id="tree2"></ul>
+                            </div>
+                        </td>
+                        <td>
+                            <div id="parseresult" style="border:solid;border-collapse:collapse;border-color:lightblue;">
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div id="errormessage" style="color:red;"></div>
+                <h2>说明</h2>
+                本演示页面仅支持IE浏览器。由于本演示页面的调用涉及到跨域调用，所以需要将IE的安全级别设置为最低。（见IE菜单"工具/Internet选项"中安全设置页面）<br />
+                在完成浏览本演示后，请注意将安全设置调整到正常。
+                <div style="margin:20px 0;"></div>
+            </td>
+        </tr>
+    </table>
+    <script language="javascript" type="text/javascript">
+
+        function Open_Dialog() {
+            $('#mydialog').show();
+            $('#mydialog').dialog({
+                collapsible: true,
+                minimizable: true,
+                maximizable: true,
+                buttons: [{
+                    text: '登录',
+                    iconCls: 'icon-ok',
+                    handler: function () {
+                        dologin();
+                    }
+                }, {
+                    text: '取消',
+                    handler: function () {
+                        $('#mydialog').dialog('取消');
+                    }
+                }]
+            });
+        }
+
+        function onloggedin(token) {
+            $("#loggedclient")[0].innerText = $("#cientname")[0].value;
+            $("#__token__")[0].value = token.token;
+            $('#mydialog').dialog('close');
+        }
+        function dologin() {
+            var clientname = $("#cientname")[0].value;
+            var password = $("#password")[0].value;
+            var parameter = '__token__=&clientname=' + clientname +
+                '&password=' + password;
+            var token = call('Login', parameter, onloggedin);
+        }
+    </script>
+    <div id="mydialog" style="display:none;padding:5px;width:400px;height:200px;" title="登录">
+        <input id="txRoleID" type="hidden" runat="server" value="0" />
+        <label class="lbInfo">用户名：</label>
+        <input id="cientname" type="text" class="easyui-validatebox" required="true" value="vip@fundsea.cn" /><br />
+        <label class="lbInfo">口令：</label>
+        <input id="password" type="text" class="easyui-validatebox" required="true" value="vip" /><br />
+        <label class="lbInfo"> </label>
+        <label id="lbmsg" runat="server"></label>
+    </div>
+</html>

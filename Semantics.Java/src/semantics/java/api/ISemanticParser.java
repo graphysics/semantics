@@ -2,6 +2,6 @@ package semantics.java.api;
 
 public interface ISemanticParser {
 
-	APINode Parse(String words) throws Exception;
-
+	ParseCase Parse(String words) throws Exception;
+	public ParseCase TutorWSD(long caseid, String type, String senseids) throws Exception;
 }

@@ -2,11 +2,15 @@ package semantics.java.api;
 
 public class SemanticParserImpl extends APIBase implements ISemanticParser {
 
-	@Override
-	public APINode Parse(String words) throws Exception {
+	public ParseCase Parse(String words) throws Exception {
 		Object result = super.call("Parse", new String[]{"words"},  words);
-		return (APINode)result;
+		return (ParseCase)result;
 		
 	}
 
+	@Override
+	public ParseCase TutorWSD(long caseid, String type, String senseids) throws Exception {
+		return (ParseCase)super.call("TutorWSD", new String[] {"caseid", "type", "senseids"},
+				caseid, type, senseids);		
+	}
 }

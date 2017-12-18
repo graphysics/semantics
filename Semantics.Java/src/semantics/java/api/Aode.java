@@ -2,19 +2,25 @@ package semantics.java.api;
 
 import java.util.ArrayList;
 
-public class APINode {
+/**
+ * API Node
+ * @author alexa
+ *
+ */
+public class Aode{
+	public String A;
 
 	public String Label;
 
-    public APINode(String value)
+    public Aode(String value)
     {
         this.Label = value;
     }
-    public APINode() {
+    public Aode() {
     	
     }
 
-    public ArrayList<APINode> Children;
+    public ArrayList<Aode> Children;
     
     @Override
 

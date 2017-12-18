@@ -75,6 +75,8 @@ public class BaseRequest {
 	}
 	
 	protected InputStream post(String serviceUrl, String method, String params) throws Exception {
+		if(serviceUrl==null || method == null)
+			throw new Exception("argument is null!");
         PrintWriter out = null;
         try {
             URL url = new URL(serviceUrl + "semanticapi/" + method);
@@ -86,7 +88,9 @@ public class BaseRequest {
             conn.setDoOutput(true);
             conn.setDoInput(true);
             out = new PrintWriter(conn.getOutputStream());
-            out.write(params);
+            if(params!=null) {
+            	out.write(params);
+            }
             out.flush();
             return conn.getInputStream();
         } catch (Exception e) {
@@ -107,16 +111,30 @@ public class BaseRequest {
 		}
 		Object res = null;
 		try {
-			res = mapper.readValue(stream, resClass);
+			byte[] buf = new byte[65536];
+			int len = stream.read(buf);
+			String s = new String(buf, 0, len, "utf-8");
+			if(s.startsWith("Failure:"))
+			{
+				String f = s.substring(8);
+				Failure failure = (Failure)mapper.readValue(f, Failure.class);
+				throw new FailureException(failure);
+			}
+			else
+				res = mapper.readValue(s, resClass);
+//			res = mapper.readValue(stream, resClass);
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		} catch (JsonMappingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		}
 		return res;
 	} 
