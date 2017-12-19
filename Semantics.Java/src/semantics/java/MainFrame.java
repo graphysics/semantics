@@ -173,9 +173,13 @@ public class MainFrame extends JFrame {
 	void demoParser() {
 		if(!verifyLogin())
 			return;
-		ParserTestFrame testparserframe = new ParserTestFrame();
-		testparserframe.setVisible(true);
-		
+		try {
+			ParserTestFrame testparserframe = new ParserTestFrame();
+			testparserframe.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Expcetion:" + e);
+		}
 	}
 
 	boolean verifyLogin() {

@@ -11,11 +11,7 @@ import javax.swing.tree.TreePath;
 
 import semantics.java.api.*;
 
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JButton;
+import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -27,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -150,6 +147,8 @@ public class ParserTestFrame extends JFrame {
 		}
 		DefaultTableModel model = new DefaultTableModel(data, new String[] { "Id", "Sentence" });
 		table.setModel(model);
+		TableColumn column  = table.getColumnModel().getColumn(1);
+		column.setPreferredWidth(100);
 	}
 
 	ParseCase currentCase;

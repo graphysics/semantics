@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -73,6 +74,9 @@ public class BaseRequest {
 		}
 		return params;
 	}
+	void post2(String serviceUrl, String method, String params) throws Exception {
+		
+	}
 	
 	protected InputStream post(String serviceUrl, String method, String params) throws Exception {
 		if(serviceUrl==null || method == null)
@@ -80,7 +84,7 @@ public class BaseRequest {
         PrintWriter out = null;
         try {
             URL url = new URL(serviceUrl + "semanticapi/" + method);
-            URLConnection conn = url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setRequestProperty("accept", "*/*");
             conn.setRequestProperty("connection", "Keep-Alive");
             conn.setRequestProperty("user-agent",
@@ -92,6 +96,12 @@ public class BaseRequest {
             	out.write(params);
             }
             out.flush();
+            int code = conn.getResponseCode();
+            if(code==500) {
+            	InputStream errorstream = conn.getErrorStream();
+            	Failure failure = (Failure)mapper.readValue(errorstream, Failure.class);
+				throw new FailureException(failure);
+            }
             return conn.getInputStream();
         } catch (Exception e) {
         	throw e;
