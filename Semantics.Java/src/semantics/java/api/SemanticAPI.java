@@ -64,4 +64,9 @@ public class SemanticAPI extends APIBase implements ISemantics {
 		return (List<KeyValuePair>)super.call("GetCustomerDictionary");		
 	}
 
+	@Override
+	public String GetSDKVersion() {
+		return "0.1.1";
+	}
+
 }

@@ -1,11 +1,17 @@
 package semantics.java.api;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URLEncoder;
 import java.util.Dictionary;
 import java.util.HashMap;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+
+import semantics.java.utils.JsonUtility;
 
 public class APIBase {
 
@@ -50,14 +56,17 @@ public class APIBase {
 		return url;
 	}
 
-	private String getValueString(Object param) {
-		if (param.getClass().equals(String.class)) {
+	private String getValueString(Object param) throws Exception {
+		Class<?> cls = param.getClass(); 
+		if (cls.equals(String.class)) {
 			try {
 				return URLEncoder.encode(param.toString(), "utf-8");
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}else if(param instanceof Aode) {
+			return JsonUtility.toJson(param);
 		}
 		return param.toString();
 	}

@@ -5,6 +5,7 @@ package semantics.java.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
@@ -91,15 +92,21 @@ public class BaseRequest {
                     "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            out = new PrintWriter(conn.getOutputStream());
+            OutputStream stream = conn.getOutputStream();
+            out = new PrintWriter(stream);
             if(params!=null) {
-            	out.write(params);
+            	//out.write(params);
+            	byte[] bytes = params.getBytes("UTF-8");
+            	stream.write(bytes);
             }
-            out.flush();
+            //out.flush();
+            stream.flush();
             int code = conn.getResponseCode();
             if(code==500) {
             	InputStream errorstream = conn.getErrorStream();
-            	Failure failure = (Failure)mapper.readValue(errorstream, Failure.class);
+            	String json = readJson(errorstream);
+            	Failure failure = (Failure)mapper.readValue(json, Failure.class);
+            	failure.putJson(json);
 				throw new FailureException(failure);
             }
             return conn.getInputStream();
@@ -109,6 +116,13 @@ public class BaseRequest {
         	if (out != null)  out.close(); 
         }
     }
+
+	private String readJson(InputStream stream) throws IOException {
+		byte[] buf = new byte[65536];
+		int len = stream.read(buf);
+		String s = new String(buf, 0, len, "utf-8");
+		return s;
+	}
 
 	public Object call(String method, String params, Class<?> resClass) throws Exception {
 		InputStream stream = null;
@@ -121,17 +135,10 @@ public class BaseRequest {
 		}
 		Object res = null;
 		try {
-			byte[] buf = new byte[65536];
-			int len = stream.read(buf);
-			String s = new String(buf, 0, len, "utf-8");
-			if(s.startsWith("Failure:"))
-			{
-				String f = s.substring(8);
-				Failure failure = (Failure)mapper.readValue(f, Failure.class);
-				throw new FailureException(failure);
-			}
-			else
-				res = mapper.readValue(s, resClass);
+			String json = readJson(stream);
+			res = mapper.readValue(json, resClass);
+			if(Abject.class.isInstance(res))
+				((Abject)res).putJson(json);
 //			res = mapper.readValue(stream, resClass);
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block

@@ -13,4 +13,10 @@ public class SemanticParserImpl extends APIBase implements ISemanticParser {
 		return (ParseCase)super.call("TutorWSD", new String[] {"caseid", "type", "senseids"},
 				caseid, type, senseids);		
 	}
+
+	@Override
+	public ParseCase TutorPhrase(long caseid, Aode node) throws Exception {
+		return (ParseCase)super.call("TutorPhrase", new String[] {"caseid", "node"},
+				caseid, node);		
+	}
 }

@@ -5,7 +5,7 @@ package semantics.java.api;
  * @author alexa
  *
  */
-public class Aoken extends RemotableObject {
+public class Aoken extends Abject {
 	public String token;
 	public int clientId;
 }

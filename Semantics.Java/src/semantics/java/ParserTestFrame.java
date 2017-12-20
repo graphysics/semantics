@@ -1,9 +1,7 @@
 package semantics.java;
 
 import semantics.java.ui.*;
-import javax.swing.JFrame;
-import javax.swing.JTextField;
-import javax.swing.JTree;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -21,13 +19,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import javax.swing.JTable;
+
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.JLabel;
+
 import java.awt.Color;
 
 public class ParserTestFrame extends JFrame {
@@ -45,10 +42,11 @@ public class ParserTestFrame extends JFrame {
 	private JLabel lblNewLabel;
 	private JButton buttonTutor;
 	private JLabel lblAction;
+	JPanel panelOutput;
 
 	public ParserTestFrame() {
 		this.setTitle("Parser Demon");
-		this.setSize(800, 600);
+		this.setSize(1200, 600);
 		getContentPane().setLayout(null);
 
 		textField = new JTextField();
@@ -95,7 +93,7 @@ public class ParserTestFrame extends JFrame {
 
 		lblNewLabel_1 = new JLabel(
 				"Java应用中某些输入法中文输入可能有问题。如不能输入中文，请在别的应用(如记事本)中输入中文后拷贝复制过来。");
-		lblNewLabel_1.setBounds(81, 34, 597, 15);
+		lblNewLabel_1.setBounds(60, 39, 633, 21);
 		getContentPane().add(lblNewLabel_1);
 
 		lblNewLabel_2 = new JLabel("Copus");
@@ -125,6 +123,19 @@ public class ParserTestFrame extends JFrame {
 		lblAction.setForeground(Color.RED);
 		lblAction.setBounds(134, 59, 525, 15);
 		getContentPane().add(lblAction);
+		
+		JLabel lblNewLabel_4 = new JLabel("JSON");
+		lblNewLabel_4.setBounds(787, 82, 54, 15);
+		getContentPane().add(lblNewLabel_4);
+		
+		textAreaJson = new JTextArea();
+		textAreaJson.setBounds(797, 97, 377, 453);
+		textAreaJson.setLineWrap(true);
+	    panelOutput = new JPanel();
+	    panelOutput.setBounds(785, 97, 389, 453);
+	    panelOutput.add(new JScrollPane(textAreaJson));
+	    
+		getContentPane().add(panelOutput);
 		this.showCorpus();
 
 	}
@@ -152,6 +163,7 @@ public class ParserTestFrame extends JFrame {
 	}
 
 	ParseCase currentCase;
+	private JTextArea textAreaJson;
 	void doParse() {
 		try {
 			String input = textField.getText();
@@ -172,17 +184,22 @@ public class ParserTestFrame extends JFrame {
 		}
 	}
 
-	void onParseResult() {
+	void onParseResult() throws Exception {
+		this.textAreaJson.setText(this.currentCase.getJson());
 		if (currentCase.IsSuccess)
 			this.showAPINode(currentCase.Result);
 		else if (currentCase.AmbiguousResults != null) {
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode("Ambiguous!");
 			for (int i = 0; i < currentCase.AmbiguousResults.size(); i++) {
 				Aode node = currentCase.AmbiguousResults.get(i);
+				node.rectifyHierarchy(1);
 				root.add(this.makeTreeNode(node));
 			}
 			DefaultTreeModel model = new DefaultTreeModel(root);
 			this.tree.setModel(model);
+	        tree.setDragEnabled(true);
+	        tree.setDropMode(DropMode.ON_OR_INSERT);
+	        tree.setTransferHandler(new TreeTransferHandler());
 			this.buttonTutor.setEnabled(true);
 			this.lblAction.setText("发现不能解析的句法歧义！请选择有效的短语来指正。");
 		}else if(currentCase.WordSenseAmbiguities!=null) {		
@@ -210,10 +227,14 @@ public class ParserTestFrame extends JFrame {
 				JOptionPane.showMessageDialog(this, currentCase.Failure.Message);
 			}
 		}
+		this.tree.expandTree();
 	}
 	private void doTutor() {
 		try {
-			
+			if(this.currentCase.FailureType== ParseCase.EnumFailureType.PhraseStructureAmbiguities){
+				this.tutorPhraseStructure();
+				return;
+			}
 			int[] senseids = new int[this.currentCase.WordSenseAmbiguities.size()];
 			for(int i=0;i<senseids.length;i++)
 				senseids[i]= -1;
@@ -252,6 +273,14 @@ public class ParserTestFrame extends JFrame {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Expcetion:" + e);
 		}
+	}
+
+	private void tutorPhraseStructure() {
+		ArrayList<Aode> nodes = new ArrayList<Aode>();
+		for(Aode node : this.currentCase.AmbiguousResults)
+			nodes.add(node.copy());
+		SemanticTreeEditFrame editor = new SemanticTreeEditFrame(this.currentCase, nodes); 
+		editor.setVisible(true);
 	}
 
 	private void showAPINode(Aode result) {

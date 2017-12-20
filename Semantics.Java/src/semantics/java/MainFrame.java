@@ -3,6 +3,7 @@ package semantics.java;
 import java.awt.BorderLayout;
 import javax.swing.*;
 
+import semantics.java.api.Aession;
 import semantics.java.api.SemanticAPI;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -186,7 +187,13 @@ public class MainFrame extends JFrame {
 		
 		SemanticAPI.getSemanticAPI().setServiceUrl(this.getTxtUrl().getText());
 		try {
-			if(SemanticAPI.getSemanticAPI().getSession().getToken()==null) {
+			Aession session = SemanticAPI.getSemanticAPI().getSession(); 
+			if(session.getToken()==null) {
+				//Check SDK Version
+				String sdkversion =SemanticAPI.getSemanticAPI().GetSDKVersion();
+				if(!session.Version.equals(sdkversion))
+					JOptionPane.showMessageDialog(this, "The version of Semantics WebAPI@ '"+SemanticAPI.getSemanticAPI().getServiceUrl()+
+							"' is " + session.Version + ", which is difference from the SDK versoin " + sdkversion + ".\r\n Please try to pull newest SDK from github!");	
 				if(!this.doLogin())
 					return false;
 			}
@@ -197,6 +204,7 @@ public class MainFrame extends JFrame {
 		}
 		return true;
 	}
+	
 	private boolean doLogin() {
 		SemanticAPI.getSemanticAPI().setServiceUrl(this.txtUrl.getText());
 		LoginDialog login = new LoginDialog();

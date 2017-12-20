@@ -8,8 +8,10 @@ public class Aession {
 	public Aoken getToken() {
 		return token;
 	}
-	public String sessionId;
-	public String pubKey;
+	
+	public String Version;
+	public String SessionId;
+	public String PubKey;
 	public Key getPubKey() {
 		return null;
 	}

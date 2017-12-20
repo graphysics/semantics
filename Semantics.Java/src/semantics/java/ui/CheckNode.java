@@ -4,6 +4,8 @@ import java.util.Enumeration;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import semantics.java.api.Aode;
+
 public class CheckNode extends DefaultMutableTreeNode {
 
 	public final static int SINGLE_SELECTION = 0;
@@ -13,6 +15,8 @@ public class CheckNode extends DefaultMutableTreeNode {
 	protected int selectionMode;
 
 	protected boolean isSelected;
+
+	public Object tag;
 
 	public CheckNode() {
 		this(null);
@@ -50,5 +54,10 @@ public class CheckNode extends DefaultMutableTreeNode {
 
 	public boolean isSelected() {
 		return isSelected;
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString();
 	}
 }

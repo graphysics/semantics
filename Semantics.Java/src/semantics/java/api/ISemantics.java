@@ -9,4 +9,5 @@ public interface ISemantics {
 	public Aoken Login(String clientname, String password) throws Exception;
 	public List<KeyValuePair> GetCorpusSentences() throws Exception;
 	public Aesult RegisterWord(String newword, String category, String similar) throws Exception;
+	public String GetSDKVersion();
 }
