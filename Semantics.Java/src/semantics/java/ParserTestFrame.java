@@ -294,12 +294,13 @@ public class ParserTestFrame extends JFrame {
 		this.tree.expandTree();
 	}
 
-	DefaultMutableTreeNode makeTreeNode(Aode node) {
-		DefaultMutableTreeNode treenode = new DefaultMutableTreeNode(node.Label);
+	CheckNode makeTreeNode(Aode node) {
+		CheckNode treenode = new CheckNode(node.Label);
+		treenode.tag = node;
 		if (node.Children != null) {
 			for (int i = 0; i < node.Children.size(); i++) {
 				Aode child = node.Children.get(i);
-				DefaultMutableTreeNode childtreenode = makeTreeNode(child);
+				CheckNode childtreenode = makeTreeNode(child);
 				treenode.add(childtreenode);
 			}
 		}

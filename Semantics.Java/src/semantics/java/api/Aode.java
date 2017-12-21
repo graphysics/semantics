@@ -10,6 +10,8 @@ import java.util.ArrayList;
 public class Aode{
 
 	public String Label;
+	public String Sense;
+    public boolean IsHead;
 
     public Aode(String value)
     {
@@ -55,6 +57,8 @@ public class Aode{
 		// TODO Auto-generated method stub
 		Aode aode = new Aode();
 		aode.Label = this.Label;
+		aode.IsHead = this.IsHead;
+		aode.Sense = this.Sense;
 		if(this.Children!=null) {
 			for(Aode child : this.Children) {
 				Aode childcopy = child.copy();

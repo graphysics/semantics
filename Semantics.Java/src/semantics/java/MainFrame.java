@@ -25,6 +25,8 @@ public class MainFrame extends JFrame {
 	private JTextField txtUrl;
 	private JLabel lblNewLabel;
 	private JMenuItem menuItemParser;
+	private JMenu menuHelp;
+	private JMenuItem mntmAbout;
 	/**
 	 * This is the default constructor
 	 */
@@ -94,6 +96,7 @@ public class MainFrame extends JFrame {
 			jJMenuBar = new JMenuBar();
 			jJMenuBar.add(getJMenu());
 			jJMenuBar.add(getJMenuTest());
+			jJMenuBar.add(getMenuHelp());
 		}
 		return jJMenuBar;
 	}
@@ -240,6 +243,25 @@ public class MainFrame extends JFrame {
 			});
 		}
 		return menuItemParser;
+	}
+	private JMenu getMenuHelp() {
+		if (menuHelp == null) {
+			menuHelp = new JMenu("\u5E2E\u52A9");
+			menuHelp.add(getMntmAbout());
+		}
+		return menuHelp;
+	}
+	private JMenuItem getMntmAbout() {
+		if (mntmAbout == null) {
+			mntmAbout = new JMenuItem("\u5173\u4E8E");
+			mntmAbout.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					AboutBox about = new AboutBox();
+					about.setVisible(true);
+				}
+			});
+		}
+		return mntmAbout;
 	}
 }  
 

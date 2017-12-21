@@ -6,31 +6,44 @@ import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.tree.TreeCellRenderer;
 
+import semantics.java.api.Aode;
+
 @SuppressWarnings("serial")
 public class CheckRenderer extends JPanel implements TreeCellRenderer {
 	protected JCheckBox check;
 
 	protected TreeLabel label;
 
+	Icon headIcon;
 	public CheckRenderer() {
 		setLayout(null);
 		add(check = new JCheckBox());
 		add(label = new TreeLabel());
 		check.setBackground(UIManager.getColor("Tree.textBackground"));
 		label.setForeground(UIManager.getColor("Tree.textForeground"));
+		String path = System.getProperty("user.dir") + "\\src\\resources\\key.png";
+		headIcon = new ImageIcon(path);
 	}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected, boolean expanded,
 			boolean leaf, int row, boolean hasFocus) {
 		String stringValue = tree.convertValueToText(value, isSelected, expanded, leaf, row, hasFocus);
 		setEnabled(tree.isEnabled());
-		if(value.getClass().equals(CheckNode.class))
-			check.setSelected(((CheckNode) value).isSelected());
 		label.setFont(tree.getFont());
 		label.setText(stringValue);
 		label.setSelected(isSelected);
 		label.setFocus(hasFocus);
-		if (leaf) {
+		
+		boolean isHead = false;
+		if(value instanceof CheckNode) {
+			check.setSelected(((CheckNode) value).isSelected());
+			Aode node = (Aode)((CheckNode) value).tag;
+			isHead = node.IsHead;
+		}
+		if(isHead) {
+			label.setIcon(this.headIcon);
+		}
+		else if (leaf) {
 			label.setIcon(UIManager.getIcon("Tree.leafIcon"));
 		} else if (expanded) {
 			label.setIcon(UIManager.getIcon("Tree.openIcon"));
